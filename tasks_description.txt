@@ -1,0 +1,30 @@
+1. Gets data from the file via FTP. Files can be of different names. Read everything from the folder
+ and add them to DB to collection "flight_records".
+ Read files line by line. Search necessary names (CSV using DFDL; field delimiter: " " ; record delimiter "new line").
+ Files could have incorrect lines.
+ Write it to the log but do not interrupt the work when that happens.
+ 
+ 2. REST webservice. Accepts requests:
+ RS_WS 
+{
+	"firstname": "<F_N>",
+	"lastname": "L_N",
+	"flightnumber": "F_NUM"
+}
+ and adds to 2 collections in Mongo as a result
+ (use upsert: true; for that indexing of query fields is needed: (firstname,lastname), (flightnumber))
+ "users"
+ "flights"
+ 
+ The response should be a JSON response:
+ "The record has been updated"
+ "The record has been inserted"
+ "Error"
+ "required field ..."
+ "incorrect type or field ..."
+ 
+ 3. Bridge between flows. Job will be working each 10 minutets. (CRON setup)
+ Takes all records from collection "flight_records" and pushes them one by one to the REST WS.
+ Should have a good log which would write everything it has done.
+ Should have a cursor: to keep the last read record in the collection.
+ When the flow has stopped working, the cursor should be updated.
