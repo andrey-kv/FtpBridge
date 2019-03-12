@@ -1,10 +1,15 @@
 package com.epam.ankov.FtpBridge.models;
 
-import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Objects;
 
+@Document(collection = "flight_record")
+@CompoundIndexes({
+        @CompoundIndex(def = "{'firstName' : 1, 'secondName': 1, 'flightNumber': 1}")
+})
 public class FlightRecord {
 
     private String firstName;
@@ -63,5 +68,14 @@ public class FlightRecord {
     @Override
     public int hashCode() {
         return Objects.hash(firstName, secondName, flightNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "FlightRecord{" +
+                "firstName='" + firstName + '\'' +
+                ", secondName='" + secondName + '\'' +
+                ", flightNumber='" + flightNumber + '\'' +
+                '}';
     }
 }
