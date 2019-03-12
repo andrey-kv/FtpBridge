@@ -3,22 +3,28 @@ package com.epam.ankov.FtpBridge.services;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 @Service
 public class FtpReader {
 
     private static final Logger log = LoggerFactory.getLogger(FtpReader.class);
+
+    private static final String HOST_NAME = "localhost";
+    private static final String USER_NAME = "admin";
+    private static final String PASSWORD = "admin";
+    private static final String DIR_PATH = "/";
 
     @Autowired
     private final RecordValidator recordValidator;
@@ -36,40 +42,36 @@ public class FtpReader {
     public void read() {
         log.info("Read from FTP");
 
-        String host = "localhost";
-        String user = "admin";
-        String pass = "admin";
-        String dirPath = "/";
-
         try {
-            FTPClient ftp = getFtpClient(host, user, pass, dirPath);
-            FTPFile[] ftpFiles = ftp.listFiles();
-
-            for (FTPFile file : ftpFiles) {
-                log.info(file.getName());
-                dataAppender.append(readFile(ftp, file.getName()));
-            }
-
-            ftp.disconnect();
-
+            readFromFtp();
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
             ex.printStackTrace();
         }
-
         log.info("Read from FTP completed");
     }
 
-    private FTPClient getFtpClient(String host, String user, String pass, String dirPath) throws IOException {
+    private void readFromFtp() throws IOException {
+        FTPClient ftp = getFtpClient();
+        FTPFile[] ftpFiles = ftp.listFiles();
+
+        for (FTPFile file : ftpFiles) {
+            log.info(file.getName());
+            dataAppender.append(readFile(ftp, file.getName()));
+        }
+        ftp.disconnect();
+    }
+
+    private FTPClient getFtpClient() throws IOException {
         FTPClient ftp = new FTPClient();
-        ftp.connect(host);
-        ftp.login(user, pass);
+        ftp.connect(HOST_NAME);
+        ftp.login(USER_NAME, PASSWORD);
         if (!FTPReply.isPositiveCompletion(ftp.getReplyCode())) {
             ftp.disconnect();
-            throw new IOException("login fail!");
+            throw new IOException("Login fail!");
         }
         ftp.enterLocalPassiveMode();
-        ftp.changeWorkingDirectory(dirPath);
+        ftp.changeWorkingDirectory(DIR_PATH);
         return ftp;
     }
 

@@ -1,12 +1,15 @@
 package com.epam.ankov.FtpBridge.models;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Objects;
 
 public class FlightRecord {
 
-    public String firstName;
-    public String secondName;
-    public String flightNumber;
+    private String firstName;
+    private String secondName;
+    private String flightNumber;
 
     public FlightRecord() {}
 
